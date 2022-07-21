@@ -20,13 +20,28 @@
     <hr>
     <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a> <!-- 追加 -->
     {% for comment in post.comments.all %}
+    <!-- コメント管理追加 
+　　　　ログインしているユーザは、すべてのコメントが見られる：(1)
+　　　　ログインしているユーザは、コメントの承認または削除ができる3：(2)
+　　　　ログインしていないユーザは、承認されたコメントのみを見られる：(3)
+-->
+        {% if user.is_authenticated or comment.approved_comment %} <!-- 追加 (1)と(3)に対応 -->  
         <div class="comment">
-            <div class="date">{{ comment.created_date }}</div>
+            <!-- div class="date" を変更。(2)に対応 -->
+            <div class="date">
+                {{ comment.created_date }}
+                {% if not comment.approved_comment %}
+                    <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+                    <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
+                {% endif %}
+            </div>
+            <!-- コメント管理追加　div class="date" の変更 終わり --> 
             <strong>{{ comment.author }}</strong>
             <p>{{ comment.text|linebreaks }}</p>
         </div>
+        {% endif %}   <!-- コメント管理追加 -->
     {% empty %}
         <p>No comments here yet :(</p>
     {% endfor %}
-    <!-- 追加 終わり -->
+    <!-- Comment追加 終わり -->
 {% endblock %}
